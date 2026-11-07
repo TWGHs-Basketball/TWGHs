@@ -896,7 +896,7 @@
 
       // --- Google 試算表 API 串接函式 ---
       const fetchGoogleData = async () => {
-        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("請將你剛才複製")) {
+        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnRIhQXnj2C5OmRl-yzCGKFgpQgmeqn9WJTjXWHSXx-yRwNzmM87aDEDa3spsNEbfO5X9gCZduTPT26f292OwgD_QLzcKGX6JpmWfk5QDhGygELzyrzm9kjmGc-rB3rw-OKffdPw3DZSmi-G9SUWDBaGmH8neoC67Zhl7CGe7HbM-EdHD5fTlVNNV4YgQizlN6DH1AcE3A6BB1eBEjhg3Kkgi45WLBLVppQJ14XfpD4RZBjUtFGshhl6pOOaVVQscuQbekAs9pYWy2pr0wUM5t9IlN99sg&lib=M_mAZ23aMHnf4qk_x-SA5-aG_8FgXWkMu")) {
           console.warn("⚠️ 尚未設定 GOOGLE_SCRIPT_URL，將使用離線展示數據。");
           return;
         }
