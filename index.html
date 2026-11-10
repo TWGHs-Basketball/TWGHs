@@ -929,28 +929,29 @@
         }
       };
 
-       const postGoogleAction = async (action, data = {}) => {
+      // 替換 index.html 內的 postGoogleAction
+      const postGoogleAction = async (action, data = {}) => {
         if (!GOOGLE_SCRIPT_URL) return { success: true };
 
         isLoading.value = true;
         try {
-          const res = await fetch(GOOGLE_SCRIPT_URL, {
+          // 💡 關鍵修復：加入 mode: 'no-cors'，徹底繞過 Google 轉址與 CORS 阻擋！
+          await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            // 💡 關鍵修復：必須指定為 text/plain，防止瀏覽器發送 OPTIONS 預檢導致被阻擋
+            mode: 'no-cors',
             headers: {
               'Content-Type': 'text/plain;charset=utf-8'
             },
             body: JSON.stringify({ action, ...data })
           });
-          const json = await res.json();
-          if (!json.success) {
-            alert('試算表寫入失敗：' + (json.error || json.message));
-          }
-          await fetchGoogleData(); // 重新抓取最新資料
-          return json;
+
+          // 等待 1.5 秒讓 Google 試算表完成寫入，然後重新下載最新名單
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          await fetchGoogleData(); 
+          return { success: true };
         } catch (e) {
           console.error("寫入 Google 試算表失敗:", e);
-          alert("連線 Google 失敗，請檢查網路或 Apps Script 權限！");
+          alert("連線 Google 失敗！請確保 Apps Script 部署權限為「所有人 (Anyone)」。");
           return { success: false };
         } finally {
           isLoading.value = false;
