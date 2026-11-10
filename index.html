@@ -1203,16 +1203,22 @@
       };
 
       const exportCSV = () => {
-        let csv = '排名,背號,球員姓名,職員號,位置,狀態,比賽出席,練球出席,總簽到次數,出席率\n';
-        playerStatsLeaderboard.value.forEach((p, i) => {
-          csv += `${i+1},#${p.jerseyNumber},${p.name},${p.staffId},${p.position},${p.status === 'active' ? '正常' : '已停用'},${p.matchPresent},${p.trainingPresent},${p.totalPresent},${p.rate}%\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `${siteConfig.value.teamNameMain}_Attendance_${new Date().toISOString().slice(0,10)}.csv`;
-        link.click();
-      };
+  let csv = '排名,背號,球員姓名,職員號,位置,狀態,比賽出席,練球出席,總簽到次數,出席率\n';
+  playerStatsLeaderboard.value.forEach((p, i) => {
+    // 💡 建議對文字欄位加上雙引號，避免名字或位置有逗號時格式錯亂
+    csv += `${i+1},#${p.jerseyNumber},"${p.name}","${p.staffId}","${p.position}",${p.status === 'active' ? '正常' : '已停用'},${p.matchPresent},${p.trainingPresent},${p.totalPresent},${p.rate}%\n`;
+  });
+
+  // 💡 關鍵修復：在陣列最前端加上 '\uFEFF' (UTF-8 BOM)
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${siteConfig.value.teamNameMain}_Attendance_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(link); // 確保在各瀏覽器相容性
+  link.click();
+  document.body.removeChild(link);
+};
 
       const loginAdmin = () => {
         if (String(adminPassInput.value) === String(adminMasterPassword.value)) {
