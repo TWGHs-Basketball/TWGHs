@@ -929,22 +929,28 @@
         }
       };
 
-      const postGoogleAction = async (action, data = {}) => {
-        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("請將你剛才複製")) {
-          return { success: true }; // 離線模擬
-        }
+       const postGoogleAction = async (action, data = {}) => {
+        if (!GOOGLE_SCRIPT_URL) return { success: true };
 
         isLoading.value = true;
         try {
           const res = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
+            // 💡 關鍵修復：必須指定為 text/plain，防止瀏覽器發送 OPTIONS 預檢導致被阻擋
+            headers: {
+              'Content-Type': 'text/plain;charset=utf-8'
+            },
             body: JSON.stringify({ action, ...data })
           });
           const json = await res.json();
-          await fetchGoogleData(); // 操作完畢後重新抓取最新資料庫
+          if (!json.success) {
+            alert('試算表寫入失敗：' + (json.error || json.message));
+          }
+          await fetchGoogleData(); // 重新抓取最新資料
           return json;
         } catch (e) {
           console.error("寫入 Google 試算表失敗:", e);
+          alert("連線 Google 失敗，請檢查網路或 Apps Script 權限！");
           return { success: false };
         } finally {
           isLoading.value = false;
